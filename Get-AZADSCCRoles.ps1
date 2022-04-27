@@ -21,7 +21,7 @@ We grant You a nonexclusive, royalty-free right to use and modify the Sample Cod
     [bool]$ReturnedRoles = $false
 
     if ($null -eq $RoleType) {
-        $roletype = Read-Host "Please Enter a RoleType"
+        $roletype = Read-Host "Please Enter a RoleType. 'SCC' will return Microsoft Purview and Microsoft Defender roles. 'AzureAD' will return Azure Role Groups. Hitting 'Enter' will return both."
     }
     
     if ($null -eq $RoleType -or $RoleType -eq '' -or $RoleType -eq 'SCC'){
