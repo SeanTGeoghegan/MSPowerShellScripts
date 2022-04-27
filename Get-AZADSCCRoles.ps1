@@ -10,25 +10,27 @@ We grant You a nonexclusive, royalty-free right to use and modify the Sample Cod
 #
 # Original Author: Sean Geoghegan
 #
+#This script will gather SCC, Exchange, or Azure AD RoleGroups/Permissions, based on A) What you are connected to and B) what variable is passed
+#In order to pull Exchange RBAC Roles, you must ONLY be connected via Connect-ExchangeOnline, you CANNOT also be connected via Connect-IPPSSession
+#In order to pull Microsoft Purview Compliance Portal or Defender Portal Roles, you must only be connected via Connect-IPPSSession, you CANNOT also be connected via Connect-ExchangeOnline
+#
 ####################################################################################################################################################
  
-#This script will gather SCC, Exchange, or Azure AD RoleGroups/Permissions, based on A) What you are connected to and B) what variable is passed
-#In order to pull Exchange RBAC Roles, you must only be connected via Connect-ExchangeOnline, you CANNOT also be connected via Connect-IPPSSession
-#In order to pull Microsoft Purview Compliance Portal or Defender Portal Roles, you must only be connected via Connect-IPPSSession, you CANNOT also be connected via Connect-ExchangeOnline
 
     $formatenumerationlimit = -1
     $RoleType = $null
     [bool]$ReturnedRoles = $false
 
     if ($null -eq $RoleType) {
-        $roletype = Read-Host "Please Enter a RoleType. 'SCC' will return Microsoft Purview and Microsoft Defender roles. 'AzureAD' will return Azure Role Groups. Hitting 'Enter' will return both."
+        $roletype = Read-Host 'Please Enter a RoleType. ''EXOSCC'' will return Exchange Online OR Microsoft Purview and Microsoft Defender roles. ''AzureAD'' will return Azure Role Groups. Hitting ''Enter'' will return both.'
     }
     
-    if ($null -eq $RoleType -or $RoleType -eq '' -or $RoleType -eq 'SCC'){
+    if ($null -eq $RoleType -or $RoleType -eq '' -or $RoleType -eq 'EXOSCC'){
         $SCCRoles = Get-RoleGroup
         $emptySccRoles = @()
         Write-Host "This is a list of Management Role Groups within Exchange Online or the Microsoft Purview/Security Portals." -BackgroundColor cyan -ForegroundColor Black
         
+
         foreach ($sccrole in $sccroles) {
             $sccRoleMembers = Get-RoleGroupMember -Identity $SCCRole.Name
             
@@ -43,7 +45,7 @@ We grant You a nonexclusive, royalty-free right to use and modify the Sample Cod
                 $emptySccRoles += $sccRoleName
             }
         }
-        Write-Host "================== The following Management Role Groups within Exchange Online or the Microsoft Purview are empty ==================" -BackgroundColor cyan -ForegroundColor Black
+        Write-Host "================== The following Management Role Groups within Exchange Online or the the Microsoft Purview/Security Portals are empty ==================" -BackgroundColor cyan -ForegroundColor Black
         $emptysccroles | Write-Host -BackgroundColor Green -ForegroundColor Black
         $returnedRoles = $true
     }
@@ -74,4 +76,5 @@ We grant You a nonexclusive, royalty-free right to use and modify the Sample Cod
     
     if ($ReturnedRoles -eq $false){
         Write-Host "================== There are no management roles for $roleType available through this script ===============" -ForegroundColor black -BackgroundColor Red
+        return
     }
