@@ -20,27 +20,49 @@ We grant You a nonexclusive, royalty-free right to use and modify the Sample Cod
 #
 ####################################################################################################################################################
 
-$cases = Get-ComplianceCase
+Write-Host "Are you sure that you want to do this. We are NOT held liable for any policy destruction. Type 'Y' or type 'N'." -ForegroundColor Black -BackgroundColor White
+$firstconfirm = Read-Host 
 
-foreach ($case in $cases){
-    Write-Host "Case is" $case.Name -Separator "="
-    $holdpolicies = Get-CaseHoldPolicy -Case $case.Name
+if ($firstconfirm -eq "Y") {
+    Write-Host "Are you ABSOLUTELY sure that you want to do this. We are NOT held liable for any policy destruction. Type 'Y' or type 'N'." -ForegroundColor Black -BackgroundColor Red
+    $secondconfirm = Read-Host 
+}
+else {
+    break    
+}
+
+if ($secondconfirm -eq "Y") {
+    $cases = Get-ComplianceCase  
         
-    foreach ($holdpolicy in $holdpolicies){
-        Write-Host "--Policy is " $holdpolicy.Name
-        $caseholdrules = Get-CaseHoldRule -Policy $holdpolicy.Name
+    foreach ($case in $cases) {
+        Write-Host "Case is" $case.Name -Separator "="
+        $holdpolicies = Get-CaseHoldPolicy -Case $case.Name
+               
             
-        if ($null -ne "$caseholdrules"){
-            Write-Host "Case Hold has Rules" -ForegroundColor Black -BackgroundColor Red
-            
-            foreach ($caseholdrule in $caseholdrules){
-                Write-Host "----Rule is " $caseholdrule.Name
-                Remove-CaseHoldRule $caseholdrule.Name -Confirm:$false
-                Remove-CaseHoldRule $caseholdrule.Name -ForceDeletion -Confirm:$false
-            }
-        Remove-CaseHoldPolicy -identity $holdpolicy.Name -Confirm:$false
-        Remove-CaseHoldPolicy -identity $holdpolicy.Name -Confirm:$false -ForceDeletion
-        }            
-    }   
-    Remove-ComplianceCase -Identity $case.Name -Confirm:$false
+        foreach ($holdpolicy in $holdpolicies) {
+            Write-Host "--Policy is " $holdpolicy.Name
+            $caseholdrules = Get-CaseHoldRule -Policy $holdpolicy.Name
+                    
+            if ($null -ne "$caseholdrules") {
+                Write-Host "Case Hold has Rules" -ForegroundColor Black -BackgroundColor Red
+                    
+                foreach ($caseholdrule in $caseholdrules) {
+                    Write-Host "----Rule is " $caseholdrule.Name
+                    Remove-CaseHoldRule $caseholdrule.Name -Confirm:$false
+                    Remove-CaseHoldRule $caseholdrule.Name -ForceDeletion -Confirm:$false
+                }
+                
+                Remove-CaseHoldPolicy -identity $holdpolicy.Name -Confirm:$false
+                Remove-CaseHoldPolicy -identity $holdpolicy.Name -Confirm:$false -ForceDeletion
+            }            
+        }   
+        Remove-ComplianceCase -Identity $case.Name -Confirm:$false
+    }
+
+    Write-Host "Script Complete. Current Compliance Cases are:"
+    Get-ComplianceCase
+
+}
+else {
+    break
 }
